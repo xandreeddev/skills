@@ -1,0 +1,14 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check repository foundation
+        run: test -s README.md && test -s LICENSE && test -s AGENTS.md && test -L CLAUDE.md
