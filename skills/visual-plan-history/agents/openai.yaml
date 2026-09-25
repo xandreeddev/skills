@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual Plan History"
+  short_description: "Explore plans, revisions, and their rationale"
+  default_prompt: "Use $visual-plan-history to create an offline HTML guide for this plan and preserve its meaningful revisions."

@@ -1,0 +1,19 @@
+{
+  "name": "xandreed-agent-skills",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "validate": "node scripts/validate-skills.mjs",
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:install": "node --test tests/install/*.test.mjs",
+    "test:browser": "playwright test",
+    "example": "node skills/visual-plan-history/scripts/plan-history.mjs render --plan-dir examples/export-search",
+    "check": "npm run validate && npm test && npm run test:install"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "skills": "1.7.0",
+    "yaml": "2.9.1"
+  }
+}

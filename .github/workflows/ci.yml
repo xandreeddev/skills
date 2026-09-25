@@ -1,4 +1,4 @@
-name: ci
+name: CI
 on:
   push:
     branches: [main]
@@ -10,5 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check repository foundation
-        run: test -s README.md && test -s LICENSE && test -s AGENTS.md && test -L CLAUDE.md
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - run: npm run example
+      - run: git diff --exit-code -- examples/export-search/guide.html
