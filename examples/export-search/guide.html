@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="color-scheme" content="light"><title>Export saved search results · Plan history</title><style>:root { color-scheme: light; --paper: #f6f5ef; --ink: #182627; --muted: #586664; --teal: #076b65; --line: #d9ded5; --white: #fffefa; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.6 system-ui, sans-serif; }
+button, select { font: inherit; }
+button, summary, select { cursor: pointer; }
+button { color: inherit; }
+a { color: var(--teal); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 4px; }
+h1, h2, h3, h4, p { margin: 0 0 1rem; }
+h1, .goal { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; letter-spacing: -.035em; line-height: 1.13; }
+h1 { font-size: clamp(2.4rem, 4.5vw, 4.5rem); max-width: 1000px; margin-top: .7rem; }
+h2 { font-size: 1.3rem; letter-spacing: -.025em; }
+h3 { font-size: 1.05rem; }
+h4 { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+p, li, h1, h2, h3, a, button { overflow-wrap: anywhere; }
+.page-header { max-width: 1440px; margin: auto; padding: 64px 60px 32px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.eyebrow { display: block; text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; font-weight: 750; color: var(--teal); }
+.muted { color: var(--muted); }
+.small { font-size: .8rem; }
+.print-button { flex-shrink: 0; background: transparent; border: 1px solid #a5b4ae; border-radius: 6px; padding: 9px 16px; font-size: .8rem; }
+.layout { max-width: 1440px; margin: 0 auto; padding: 0 60px 70px; display: grid; grid-template-columns: 246px minmax(0, 1fr); gap: 52px; }
+.history { padding-top: 26px; min-width: 0; }
+.history h2 { font-size: .9rem; margin-bottom: 4px; }
+.history ol { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 10px; }
+.revision { text-align: left; width: 100%; padding: 16px; border: 1px solid transparent; border-left: 3px solid var(--line); border-radius: 0 7px 7px 0; background: none; font-size: .8rem; display: grid; gap: 6px; }
+.revision:hover { background: #e9eee6; }
+.revision[aria-pressed=true] { background: #e2ece4; border-left-color: var(--teal); }
+.revision-top { display: flex; align-items: center; gap: 10px; font-weight: 750; }
+.revision time { color: var(--muted); font-size: .72rem; }
+.latest-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+.history-note { font-size: .73rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
+main { min-width: 0; }
+.view-controls { display: flex; gap: 25px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.view-controls button { border: 0; border-bottom: 3px solid transparent; background: transparent; padding: 16px 2px; font-size: .85rem; }
+.view-controls button[aria-selected=true] { color: var(--teal); border-bottom-color: var(--teal); font-weight: 750; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 20px; }
+.section-heading h3 { margin: 0; }
+.tag { display: inline-block; font-size: .68rem; border: 1px solid #b4c8bc; border-radius: 30px; padding: 4px 10px; flex-shrink: 0; color: var(--teal); }
+.goal { font-size: clamp(2rem, 3.1vw, 3rem); max-width: 860px; }
+.lead { color: var(--muted); max-width: 720px; margin: 22px 0; }
+.metrics { display: flex; flex-wrap: wrap; gap: 30px; padding: 18px 0 30px; margin-bottom: 28px; border-bottom: 1px solid var(--line); font-size: .8rem; color: var(--muted); }
+.metrics strong { color: var(--ink); font-size: 1.3rem; font-weight: 600; margin-right: 5px; }
+.roadmap { display: flex; gap: 12px; flex-wrap: wrap; margin: 18px 0 38px; }
+.roadmap a { flex: 1; min-width: 150px; padding: 14px 18px; background: #e7ece3; text-decoration: none; font-size: .8rem; border-radius: 7px; }
+.roadmap span { display: block; color: var(--muted); font-size: .7rem; margin-bottom: 7px; }
+.phase { display: flex; gap: 20px; margin-bottom: 32px; scroll-margin-top: 24px; }
+.phase-number { border: 1px solid #b8c5ba; border-radius: 50%; width: 35px; height: 35px; flex-shrink: 0; display: grid; place-items: center; color: var(--teal); font-size: .75rem; }
+.phase-body { flex: 1; min-width: 0; }
+.phase-body > h3 { margin: 3px 0 6px; }
+.phase-body > p { color: var(--muted); font-size: .87rem; }
+.steps { display: grid; gap: 10px; }
+.step { background: var(--white); border: 1px solid var(--line); border-radius: 8px; scroll-margin-top: 20px; }
+.step summary { padding: 15px 18px; font-size: .9rem; font-weight: 650; }
+.step-body { padding: 0 18px 18px; font-size: .85rem; }
+.step-body p { white-space: pre-wrap; }
+.dependencies { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: .7rem; }
+.dependencies span { color: var(--muted); }
+.dependencies a { border: 1px solid var(--line); padding: 3px 8px; border-radius: 5px; text-decoration: none; }
+.decisions, .questions { border-top: 1px solid var(--line); padding-top: 26px; margin-top: 34px; }
+.decision { padding: 18px 22px; border-left: 3px solid #7b9990; background: #edf0e9; margin-top: 14px; font-size: .9rem; }
+.decision h3 { margin-bottom: 8px; }
+.reason { white-space: pre-wrap; color: var(--muted); font-size: .8rem; margin-bottom: 0; }
+.reason strong { color: var(--teal); margin-right: 8px; }
+.questions ul { padding-left: 22px; }
+.questions li { margin-bottom: 10px; }
+.compare-controls { display: flex; gap: 22px; align-items: end; margin: 24px 0 14px; }
+.compare-field { display: grid; gap: 8px; font-size: .8rem; flex: 1; min-width: 0; }
+select { width: 100%; min-width: 0; border: 1px solid #a5b4ae; border-radius: 6px; padding: 10px; background: var(--white); color: var(--ink); }
+.compare-controls > span { padding-bottom: 10px; }
+.diff { background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 22px; margin: 18px 0; }
+.diff.added { border-left: 4px solid #468166; }
+.diff.removed { border-left: 4px solid #aa664c; }
+.diff-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 14px 0 18px; }
+.diff-columns > div { min-width: 0; }
+.diff-columns pre, .original { white-space: pre-wrap; overflow-wrap: anywhere; font: .82rem/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.original { background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 24px; }
+footer { border-top: 1px solid var(--line); text-align: center; padding: 24px; font-size: .7rem; color: var(--muted); }
+.sr-only, .skip-link:not(:focus) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip-link:focus { position: absolute; top: 8px; left: 8px; padding: 8px 16px; background: white; z-index: 1; }
+@media (max-width: 800px) {
+  .page-header { padding: 30px 22px 18px; }
+  .print-button { display: none; }
+  .layout { padding: 0 22px 40px; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .history { padding-top: 4px; }
+  .history ol { display: flex; overflow-x: auto; margin: 16px 0; padding: 4px; }
+  .history li { min-width: 200px; }
+  .history-note { display: none; }
+  .phase { gap: 12px; }
+  .phase-number { width: 28px; height: 28px; }
+  .section-heading { flex-wrap: wrap; }
+  .diff-columns { grid-template-columns: 1fr; }
+  .view-controls { margin-bottom: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  body { background: white; font-size: 11pt; }
+  .page-header { padding: 0 0 20px; }
+  .layout { display: block; padding: 0; }
+  .history, .view-controls, .print-button, footer, .skip-link { display: none !important; }
+  .step, .decision, .diff { break-inside: avoid; }
+  .compare-controls select { appearance: none; border: 0; }
+  .goal { font-size: 26pt; }
+  a { color: inherit; }
+}
+</style></head>
+<body><a class="skip-link" href="#main">Skip to plan</a>
+<header class="page-header"><div><span class="eyebrow">A plan, with its history</span><h1>Export saved search results</h1><p class="muted">3 revisions · Last captured Sep 8, 2026 · Offline guide</p></div><button class="print-button" type="button">Print this view</button></header>
+<div class="layout"><aside class="history"><h2>Plan history</h2><p class="small muted">Choose a revision to explore.</p><ol><li><button type="button" class="revision" data-revision="0" aria-pressed="false"><span class="revision-top">Revision 1</span><time datetime="2026-09-01T09:00:00.000Z">Sep 1, 2026</time><span>Start with a direct CSV download for the active search.</span></button></li><li><button type="button" class="revision" data-revision="1" aria-pressed="false"><span class="revision-top">Revision 2</span><time datetime="2026-09-04T11:30:00.000Z">Sep 4, 2026</time><span>Use a background export after learning that searches can exceed 100,000 rows.</span></button></li><li><button type="button" class="revision" data-revision="2" aria-pressed="true"><span class="revision-top">Revision 3<span class="latest-dot" aria-label="Latest"></span></span><time datetime="2026-09-08T14:15:00.000Z">Sep 8, 2026</time><span>Narrow the first release: remove preview and define a 24-hour download window.</span></button></li></ol><p class="history-note">A record of the plan and its reasoning.<br>Steps are planned, not marked as completed.</p></aside>
+<main id="main" tabindex="-1"><div class="view-controls" role="tablist" aria-label="Guide views"><button id="tab-plan" type="button" role="tab" aria-selected="true" aria-controls="view-plan">Plan</button><button id="tab-changes" type="button" role="tab" aria-selected="false" aria-controls="view-changes" tabindex="-1">Changes</button><button id="tab-original" type="button" role="tab" aria-selected="false" aria-controls="view-original" tabindex="-1">Original</button></div><p id="selection-status" class="sr-only" aria-live="polite">Revision 3 selected</p>
+<section id="view-plan" role="tabpanel" aria-labelledby="tab-plan"><article class="snapshot" data-snapshot="0" hidden>
+    <div class="section-heading"><span class="eyebrow">The objective</span><span class="tag">Earlier revision · 1</span></div>
+    <h2 class="goal">Let analysts export a saved search without losing its filters.</h2>
+    <p class="lead">Start with a direct CSV download for the active search.</p>
+    <div class="metrics"><span><strong>3</strong> phases</span><span><strong>4</strong> steps</span><span><strong>1</strong> decisions</span></div>
+    <h2>Roadmap</h2>
+    <nav class="roadmap" aria-label="Revision 1 phases"><a href="#revision-0001-design"><span>01</span>Define the contract</a><a href="#revision-0001-build"><span>02</span>Build the export</a><a href="#revision-0001-verify"><span>03</span>Verify the result</a></nav>
+    <section class="phase" id="revision-0001-design"><div class="phase-number">01</div><div class="phase-body"><h3>Define the contract</h3><p>Agree on what is exported and how filters carry through.</p><div class="steps"><details class="step" id="revision-0001-step-contract" open><summary>Specify the export contract</summary><div class="step-body"><p>Preserve the current query and filters. Document CSV columns and their order.</p><span class="muted small">No prerequisites</span></div></details></div></div></section><section class="phase" id="revision-0001-build"><div class="phase-number">02</div><div class="phase-body"><h3>Build the export</h3><p>Make the saved search useful outside the application.</p><div class="steps"><details class="step" id="revision-0001-step-export" open><summary>Build a direct CSV download</summary><div class="step-body"><p>Stream the current search results into a CSV response.</p><div class="dependencies"><span>Depends on</span><a href="#revision-0001-step-contract">Specify the export contract</a></div></div></details><details class="step" id="revision-0001-step-preview" open><summary>Preview the export</summary><div class="step-body"><p>Show a sample of the first rows before downloading.</p><div class="dependencies"><span>Depends on</span><a href="#revision-0001-step-export">Build a direct CSV download</a></div></div></details></div></div></section><section class="phase" id="revision-0001-verify"><div class="phase-number">03</div><div class="phase-body"><h3>Verify the result</h3><p>Make sure the file represents the search the analyst chose.</p><div class="steps"><details class="step" id="revision-0001-step-validation" open><summary>Verify filters and CSV output</summary><div class="step-body"><p>Cover active filters, empty results, escaping, and column order.</p><div class="dependencies"><span>Depends on</span><a href="#revision-0001-step-export">Build a direct CSV download</a><a href="#revision-0001-step-preview">Preview the export</a></div></div></details></div></div></section>
+    <section class="decisions"><h2>Decisions &amp; rationale</h2><article class="decision"><h3>Delivery model</h3><p>Return CSV directly from the export request.</p><p class="reason"><strong>Why</strong> A direct response keeps the first release small.</p></article></section>
+    <section class="questions"><h2>Open questions</h2><ul><li>What is the largest expected result set?</li></ul></section>
+  </article><article class="snapshot" data-snapshot="1" hidden>
+    <div class="section-heading"><span class="eyebrow">The objective</span><span class="tag">Earlier revision · 2</span></div>
+    <h2 class="goal">Let analysts export a saved search without losing its filters.</h2>
+    <p class="lead">Use a background export after learning that searches can exceed 100,000 rows.</p>
+    <div class="metrics"><span><strong>3</strong> phases</span><span><strong>4</strong> steps</span><span><strong>1</strong> decisions</span></div>
+    <h2>Roadmap</h2>
+    <nav class="roadmap" aria-label="Revision 2 phases"><a href="#revision-0002-design"><span>01</span>Define the contract</a><a href="#revision-0002-build"><span>02</span>Build the export</a><a href="#revision-0002-verify"><span>03</span>Verify the result</a></nav>
+    <section class="phase" id="revision-0002-design"><div class="phase-number">01</div><div class="phase-body"><h3>Define the contract</h3><p>Agree on what is exported and how filters carry through.</p><div class="steps"><details class="step" id="revision-0002-step-contract" open><summary>Specify the export contract</summary><div class="step-body"><p>Preserve the current query and filters. Document CSV columns and their order.</p><span class="muted small">No prerequisites</span></div></details></div></div></section><section class="phase" id="revision-0002-build"><div class="phase-number">02</div><div class="phase-body"><h3>Build the export</h3><p>Make the saved search useful outside the application.</p><div class="steps"><details class="step" id="revision-0002-step-export" open><summary>Generate exports in a background job</summary><div class="step-body"><p>Queue the filtered query, generate CSV in a worker, and provide a download when ready.</p><div class="dependencies"><span>Depends on</span><a href="#revision-0002-step-contract">Specify the export contract</a></div></div></details><details class="step" id="revision-0002-step-preview" open><summary>Preview the export</summary><div class="step-body"><p>Show a sample of the first rows before downloading.</p><div class="dependencies"><span>Depends on</span><a href="#revision-0002-step-export">Generate exports in a background job</a></div></div></details></div></div></section><section class="phase" id="revision-0002-verify"><div class="phase-number">03</div><div class="phase-body"><h3>Verify the result</h3><p>Make sure the file represents the search the analyst chose.</p><div class="steps"><details class="step" id="revision-0002-step-validation" open><summary>Verify filters and CSV output</summary><div class="step-body"><p>Cover active filters, empty results, escaping, and column order.</p><div class="dependencies"><span>Depends on</span><a href="#revision-0002-step-export">Generate exports in a background job</a><a href="#revision-0002-step-preview">Preview the export</a></div></div></details></div></div></section>
+    <section class="decisions"><h2>Decisions &amp; rationale</h2><article class="decision"><h3>Delivery model</h3><p>Generate CSV asynchronously and provide a temporary download.</p><p class="reason"><strong>Why</strong> Large searches exceed the request timeout; background work avoids interrupting the analyst.</p></article></section>
+    <section class="questions"><h2>Open questions</h2><ul><li>How long should completed downloads remain available?</li></ul></section>
+  </article><article class="snapshot" data-snapshot="2">
+    <div class="section-heading"><span class="eyebrow">The objective</span><span class="tag">Latest revision · 3</span></div>
+    <h2 class="goal">Let analysts export a saved search without losing its filters.</h2>
+    <p class="lead">Narrow the first release: remove preview and define a 24-hour download window.</p>
+    <div class="metrics"><span><strong>3</strong> phases</span><span><strong>3</strong> steps</span><span><strong>2</strong> decisions</span></div>
+    <h2>Roadmap</h2>
+    <nav class="roadmap" aria-label="Revision 3 phases"><a href="#revision-0003-design"><span>01</span>Define the contract</a><a href="#revision-0003-build"><span>02</span>Build the export</a><a href="#revision-0003-verify"><span>03</span>Verify the result</a></nav>
+    <section class="phase" id="revision-0003-design"><div class="phase-number">01</div><div class="phase-body"><h3>Define the contract</h3><p>Agree on what is exported and how filters carry through.</p><div class="steps"><details class="step" id="revision-0003-step-contract" open><summary>Specify the export contract</summary><div class="step-body"><p>Preserve the current query and filters. Document CSV columns and their order.</p><span class="muted small">No prerequisites</span></div></details></div></div></section><section class="phase" id="revision-0003-build"><div class="phase-number">02</div><div class="phase-body"><h3>Build the export</h3><p>Make the saved search useful outside the application.</p><div class="steps"><details class="step" id="revision-0003-step-export" open><summary>Generate exports in a background job</summary><div class="step-body"><p>Queue the filtered query, generate CSV in a worker, and provide a download when ready.</p><div class="dependencies"><span>Depends on</span><a href="#revision-0003-step-contract">Specify the export contract</a></div></div></details></div></div></section><section class="phase" id="revision-0003-verify"><div class="phase-number">03</div><div class="phase-body"><h3>Verify the result</h3><p>Make sure the file represents the search the analyst chose.</p><div class="steps"><details class="step" id="revision-0003-step-validation" open><summary>Verify filters and CSV output</summary><div class="step-body"><p>Cover active filters, empty results, escaping, column order, retries, and expiration after 24 hours.</p><div class="dependencies"><span>Depends on</span><a href="#revision-0003-step-export">Generate exports in a background job</a></div></div></details></div></div></section>
+    <section class="decisions"><h2>Decisions &amp; rationale</h2><article class="decision"><h3>Delivery model</h3><p>Generate CSV asynchronously and provide a temporary download.</p><p class="reason"><strong>Why</strong> Large searches exceed the request timeout; background work avoids interrupting the analyst.</p></article><article class="decision"><h3>Download retention</h3><p>Keep completed downloads for 24 hours.</p><p class="reason"><strong>Why</strong> A day gives analysts time to retrieve the file while limiting stored exports.</p></article></section>
+    <section class="questions"><h2>Open questions</h2><p class="muted">No open questions recorded.</p></section>
+  </article></section>
+<section id="view-changes" role="tabpanel" aria-labelledby="tab-changes" hidden><div class="section-heading"><span class="eyebrow">What changed, and why</span></div><h2>Compare revisions</h2><div class="compare-controls"><div class="compare-field"><label for="compare-from">From</label><select id="compare-from"><option value="0">Revision 1</option><option value="1" selected>Revision 2</option><option value="2">Revision 3</option></select></div><span aria-hidden="true">→</span><div class="compare-field"><label for="compare-to">To</label><select id="compare-to"><option value="0">Revision 1</option><option value="1">Revision 2</option><option value="2" selected>Revision 3</option></select></div></div><p class="muted small">For wider or reversed comparisons, reasons retain the revision where they were recorded.</p><p id="comparison-status" role="status"></p><div id="comparison"></div></section>
+<section id="view-original" role="tabpanel" aria-labelledby="tab-original" hidden><span class="eyebrow">Preserved as written</span><h2>Original plan</h2><p class="muted">The source text captured for the selected revision.</p><pre class="original" data-original="0" hidden>
+# Export saved search results
+
+## Goal
+Let analysts export a saved search without losing its filters.
+
+## Plan
+1. Define the export contract and preserve active filters.
+2. Build a direct CSV download.
+3. Show a preview before downloading.
+4. Verify filters, quoting, and empty results.
+
+## Decision
+Use a direct response to keep the first release small.
+
+## Open question
+What is the largest expected result set?
+</pre><pre class="original" data-original="1" hidden>
+# Export saved search results
+
+## Goal
+Let analysts export a saved search without losing its filters.
+
+## Plan
+1. Define the export contract and preserve active filters.
+2. Queue a background job that writes CSV and provides a download when ready.
+3. Show a preview before downloading.
+4. Verify filters, quoting, empty results, and column order.
+
+## Decision
+Generate CSV asynchronously: searches can exceed 100,000 rows and time out a direct response.
+
+## Open question
+How long should completed downloads remain available?
+</pre><pre class="original" data-original="2">
+# Export saved search results
+
+## Goal
+Let analysts export a saved search without losing its filters.
+
+## Plan
+1. Define the export contract and preserve active filters.
+2. Queue a background job that writes CSV and provides a download when ready.
+3. Verify filters, quoting, empty results, retries, and expiration after 24 hours.
+
+## Decisions
+- Generate CSV asynchronously because large searches can time out a direct response.
+- Keep completed downloads for 24 hours.
+- Defer preview to keep the first release focused on reliable delivery.
+
+## Open questions
+None recorded.
+</pre></section>
+<noscript><p>JavaScript is disabled. The latest plan is shown above. Every captured source is preserved below.</p><details><summary>Revision 1: Start with a direct CSV download for the active search.</summary><pre class="original">
+# Export saved search results
+
+## Goal
+Let analysts export a saved search without losing its filters.
+
+## Plan
+1. Define the export contract and preserve active filters.
+2. Build a direct CSV download.
+3. Show a preview before downloading.
+4. Verify filters, quoting, and empty results.
+
+## Decision
+Use a direct response to keep the first release small.
+
+## Open question
+What is the largest expected result set?
+</pre></details><details><summary>Revision 2: Use a background export after learning that searches can exceed 100,000 rows.</summary><pre class="original">
+# Export saved search results
+
+## Goal
+Let analysts export a saved search without losing its filters.
+
+## Plan
+1. Define the export contract and preserve active filters.
+2. Queue a background job that writes CSV and provides a download when ready.
+3. Show a preview before downloading.
+4. Verify filters, quoting, empty results, and column order.
+
+## Decision
+Generate CSV asynchronously: searches can exceed 100,000 rows and time out a direct response.
+
+## Open question
+How long should completed downloads remain available?
+</pre></details><details><summary>Revision 3: Narrow the first release: remove preview and define a 24-hour download window.</summary><pre class="original">
+# Export saved search results
+
+## Goal
+Let analysts export a saved search without losing its filters.
+
+## Plan
+1. Define the export contract and preserve active filters.
+2. Queue a background job that writes CSV and provides a download when ready.
+3. Verify filters, quoting, empty results, retries, and expiration after 24 hours.
+
+## Decisions
+- Generate CSV asynchronously because large searches can time out a direct response.
+- Keep completed downloads for 24 hours.
+- Defer preview to keep the first release focused on reliable delivery.
+
+## Open questions
+None recorded.
+</pre></details></noscript>
+</main></div><footer>Visual plan history · Standalone, portable, and preserved.</footer>
+<script type="application/json" id="plan-history">{"schemaVersion":1,"planId":"export-search","title":"Export saved search results","snapshots":[{"id":"revision-0001","parentId":null,"capturedAt":"2026-09-01T09:00:00.000Z","summary":"Start with a direct CSV download for the active search.","goal":"Let analysts export a saved search without losing its filters.","sourceMarkdown":"# Export saved search results\n\n## Goal\nLet analysts export a saved search without losing its filters.\n\n## Plan\n1. Define the export contract and preserve active filters.\n2. Build a direct CSV download.\n3. Show a preview before downloading.\n4. Verify filters, quoting, and empty results.\n\n## Decision\nUse a direct response to keep the first release small.\n\n## Open question\nWhat is the largest expected result set?\n","phases":[{"id":"design","title":"Define the contract","summary":"Agree on what is exported and how filters carry through.","steps":[{"id":"contract","title":"Specify the export contract","detail":"Preserve the current query and filters. Document CSV columns and their order.","dependsOn":[]}]},{"id":"build","title":"Build the export","summary":"Make the saved search useful outside the application.","steps":[{"id":"export","title":"Build a direct CSV download","detail":"Stream the current search results into a CSV response.","dependsOn":["contract"]},{"id":"preview","title":"Preview the export","detail":"Show a sample of the first rows before downloading.","dependsOn":["export"]}]},{"id":"verify","title":"Verify the result","summary":"Make sure the file represents the search the analyst chose.","steps":[{"id":"validation","title":"Verify filters and CSV output","detail":"Cover active filters, empty results, escaping, and column order.","dependsOn":["export","preview"]}]}],"decisions":[{"id":"delivery","title":"Delivery model","decision":"Return CSV directly from the export request.","rationale":"A direct response keeps the first release small."}],"openQuestions":["What is the largest expected result set?"],"changeReasons":{}},{"id":"revision-0002","parentId":"revision-0001","capturedAt":"2026-09-04T11:30:00.000Z","summary":"Use a background export after learning that searches can exceed 100,000 rows.","goal":"Let analysts export a saved search without losing its filters.","sourceMarkdown":"# Export saved search results\n\n## Goal\nLet analysts export a saved search without losing its filters.\n\n## Plan\n1. Define the export contract and preserve active filters.\n2. Queue a background job that writes CSV and provides a download when ready.\n3. Show a preview before downloading.\n4. Verify filters, quoting, empty results, and column order.\n\n## Decision\nGenerate CSV asynchronously: searches can exceed 100,000 rows and time out a direct response.\n\n## Open question\nHow long should completed downloads remain available?\n","phases":[{"id":"design","title":"Define the contract","summary":"Agree on what is exported and how filters carry through.","steps":[{"id":"contract","title":"Specify the export contract","detail":"Preserve the current query and filters. Document CSV columns and their order.","dependsOn":[]}]},{"id":"build","title":"Build the export","summary":"Make the saved search useful outside the application.","steps":[{"id":"export","title":"Generate exports in a background job","detail":"Queue the filtered query, generate CSV in a worker, and provide a download when ready.","dependsOn":["contract"]},{"id":"preview","title":"Preview the export","detail":"Show a sample of the first rows before downloading.","dependsOn":["export"]}]},{"id":"verify","title":"Verify the result","summary":"Make sure the file represents the search the analyst chose.","steps":[{"id":"validation","title":"Verify filters and CSV output","detail":"Cover active filters, empty results, escaping, and column order.","dependsOn":["export","preview"]}]}],"decisions":[{"id":"delivery","title":"Delivery model","decision":"Generate CSV asynchronously and provide a temporary download.","rationale":"Large searches exceed the request timeout; background work avoids interrupting the analyst."}],"openQuestions":["How long should completed downloads remain available?"],"changeReasons":{"step:export":"Large searches can exceed the request timeout.","decision:delivery":"Dataset sizing showed more than 100,000 rows in some searches.","openQuestions":"Dataset size is known; retention is still undecided.","sourceMarkdown":"Record the background-job approach and updated retention question."}},{"id":"revision-0003","parentId":"revision-0002","capturedAt":"2026-09-08T14:15:00.000Z","summary":"Narrow the first release: remove preview and define a 24-hour download window.","goal":"Let analysts export a saved search without losing its filters.","sourceMarkdown":"# Export saved search results\n\n## Goal\nLet analysts export a saved search without losing its filters.\n\n## Plan\n1. Define the export contract and preserve active filters.\n2. Queue a background job that writes CSV and provides a download when ready.\n3. Verify filters, quoting, empty results, retries, and expiration after 24 hours.\n\n## Decisions\n- Generate CSV asynchronously because large searches can time out a direct response.\n- Keep completed downloads for 24 hours.\n- Defer preview to keep the first release focused on reliable delivery.\n\n## Open questions\nNone recorded.\n","phases":[{"id":"design","title":"Define the contract","summary":"Agree on what is exported and how filters carry through.","steps":[{"id":"contract","title":"Specify the export contract","detail":"Preserve the current query and filters. Document CSV columns and their order.","dependsOn":[]}]},{"id":"build","title":"Build the export","summary":"Make the saved search useful outside the application.","steps":[{"id":"export","title":"Generate exports in a background job","detail":"Queue the filtered query, generate CSV in a worker, and provide a download when ready.","dependsOn":["contract"]}]},{"id":"verify","title":"Verify the result","summary":"Make sure the file represents the search the analyst chose.","steps":[{"id":"validation","title":"Verify filters and CSV output","detail":"Cover active filters, empty results, escaping, column order, retries, and expiration after 24 hours.","dependsOn":["export"]}]}],"decisions":[{"id":"delivery","title":"Delivery model","decision":"Generate CSV asynchronously and provide a temporary download.","rationale":"Large searches exceed the request timeout; background work avoids interrupting the analyst."},{"id":"retention","title":"Download retention","decision":"Keep completed downloads for 24 hours.","rationale":"A day gives analysts time to retrieve the file while limiting stored exports."}],"openQuestions":[],"changeReasons":{"step:preview":"Preview does not help validate reliable delivery; defer it beyond the first release.","step:validation":"Remove the preview prerequisite and cover job retries and expiration.","decision:retention":"A 24-hour window balances retrieval time and stored export volume.","roadmap":"Remove the deferred preview step.","openQuestions":"The retention decision resolves the remaining question.","sourceMarkdown":"Preserve the narrowed first-release scope and retention decision."}}]}</script><script>(() => { 'use strict';
+function canonical(value) {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])]));
+  return value;
+}
+const same = (a, b) => JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+function entities(snapshot) {
+  return new Map([
+    ['goal', { title: 'Goal', text: snapshot.goal }],
+    ['roadmap', { title: 'Roadmap order', text: snapshot.phases.map(phase => `${phase.id}: ${phase.steps.map(step => step.id).join(', ')}`).join('\n') }],
+    ...snapshot.phases.flatMap(phase => [
+      [`phase:${phase.id}`, { title: phase.title, text: phase.summary }],
+      ...phase.steps.map(step => [`step:${step.id}`, { title: step.title, text: step.detail, phase: phase.id, dependsOn: step.dependsOn }]),
+    ]),
+    ...snapshot.decisions.map(decision => [`decision:${decision.id}`, { title: decision.title, text: decision.decision, rationale: decision.rationale }]),
+    ['openQuestions', { title: 'Open questions', text: snapshot.openQuestions.join('\n') }],
+    ['sourceMarkdown', { title: 'Original plan', text: snapshot.sourceMarkdown }],
+  ]);
+}
+
+function compareSnapshots(before, after) {
+  const oldItems = entities(before); const newItems = entities(after);
+  return [...new Set([...oldItems.keys(), ...newItems.keys()])].flatMap(key => {
+    const oldValue = oldItems.get(key); const newValue = newItems.get(key);
+    if (same(oldValue, newValue)) return [];
+    return [{ key, kind: !oldValue ? 'added' : !newValue ? 'removed' : 'changed', title: (newValue ?? oldValue).title, before: oldValue ?? null, after: newValue ?? null }];
+  });
+}
+
+const history = JSON.parse(document.getElementById('plan-history').textContent);
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+const fromSelect = document.getElementById('compare-from');
+const toSelect = document.getElementById('compare-to');
+
+function activateTab(tab) {
+  for (const item of tabs) {
+    const selected = item === tab;
+    item.setAttribute('aria-selected', String(selected));
+    item.tabIndex = selected ? 0 : -1;
+    document.getElementById(item.getAttribute('aria-controls')).hidden = !selected;
+  }
+}
+tabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => activateTab(tab));
+  tab.addEventListener('keydown', event => {
+    const next = { ArrowRight: (index + 1) % tabs.length, ArrowLeft: (index + tabs.length - 1) % tabs.length, Home: 0, End: tabs.length - 1 }[event.key];
+    if (next === undefined) return;
+    event.preventDefault(); activateTab(tabs[next]); tabs[next].focus();
+  });
+});
+
+function element(tag, text, className) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+function describe(value) {
+  if (!value) return 'Not present in this revision.';
+  return [value.title, value.text, value.phase ? `Phase: ${value.phase}` : '', value.dependsOn ? `Depends on: ${value.dependsOn.join(', ') || 'none'}` : '', value.rationale ? `Rationale: ${value.rationale}` : ''].filter(Boolean).join('\n\n');
+}
+function renderComparison() {
+  const from = Number(fromSelect.value); const to = Number(toSelect.value);
+  const differences = compareSnapshots(history.snapshots[from], history.snapshots[to]);
+  const container = document.getElementById('comparison');
+  container.replaceChildren();
+  document.getElementById('comparison-status').textContent = from === to ? 'Choose two different revisions to see changes.' : differences.length ? `${differences.length} changed items · Revision ${from + 1} → Revision ${to + 1}` : 'These revisions have the same plan content.';
+  for (const change of differences) {
+    const card = element('article', undefined, `diff ${change.kind}`);
+    card.dataset.key = change.key;
+    const heading = element('div', undefined, 'section-heading');
+    heading.append(element('h3', change.title), element('span', change.kind, 'tag'));
+    card.append(heading);
+    const columns = element('div', undefined, 'diff-columns');
+    for (const [label, value] of [[`Revision ${from + 1}`, change.before], [`Revision ${to + 1}`, change.after]]) {
+      const column = element('div');
+      column.append(element('h4', label), element('pre', describe(value)));
+      columns.append(column);
+    }
+    if (['sourceMarkdown', 'roadmap'].includes(change.key)) {
+      const details = element('details'); details.append(element('summary', 'Show before and after'), columns); card.append(details);
+    } else card.append(columns);
+    const reasons = history.snapshots.slice(Math.min(from, to) + 1, Math.max(from, to) + 1).flatMap(snapshot => Object.hasOwn(snapshot.changeReasons, change.key) ? [`${snapshot.id}: ${snapshot.changeReasons[change.key]}`] : []);
+    card.append(element('p', reasons.length ? `Recorded rationale\n${reasons.join('\n')}` : 'No change rationale recorded for this item.', 'reason'));
+    container.append(card);
+  }
+}
+fromSelect.addEventListener('change', renderComparison);
+toSelect.addEventListener('change', renderComparison);
+for (const button of document.querySelectorAll('[data-revision]')) {
+  button.addEventListener('click', () => {
+    const selected = Number(button.dataset.revision);
+    for (const item of document.querySelectorAll('[data-revision]')) item.setAttribute('aria-pressed', String(item === button));
+    for (const article of document.querySelectorAll('[data-snapshot]')) article.hidden = Number(article.dataset.snapshot) !== selected;
+    for (const original of document.querySelectorAll('[data-original]')) original.hidden = Number(original.dataset.original) !== selected;
+    fromSelect.value = String(Math.max(0, selected - 1)); toSelect.value = String(selected);
+    document.getElementById('selection-status').textContent = `Revision ${selected + 1} selected`;
+    renderComparison();
+  });
+}
+document.querySelector('.print-button').addEventListener('click', () => window.print());
+let closedDetails = [];
+window.addEventListener('beforeprint', () => {
+  closedDetails = [...document.querySelectorAll('details:not([open])')];
+  closedDetails.forEach(details => { details.open = true; });
+});
+window.addEventListener('afterprint', () => {
+  closedDetails.forEach(details => { details.open = false; });
+});
+renderComparison();
+
+})();</script></body></html>
